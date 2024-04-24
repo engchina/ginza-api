@@ -2,6 +2,7 @@ import re
 
 import spacy
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -9,8 +10,12 @@ nlp_ja_model = spacy.load('ja_ginza_electra')
 nlp_en_model = spacy.load('en_core_web_lg')
 
 
+class QueryText(BaseModel):
+    query_text: str
+
+
 @app.post("/split-query/")
-async def split_query(query_text: str):
+def split_query(query: QueryText):
     """
     Extracts relevant search texts from the input query text based on specific token tags.
     No '名詞-数詞'.
@@ -21,7 +26,8 @@ async def split_query(query_text: str):
     Returns:
     - list: A list of search texts extracted from the input query text.
     """
-    ja_split_queries = list(set([token.text for token in nlp_ja_model(query_text) if
+    print(f"{query.query_text=}")
+    ja_split_queries = list(set([token.text for token in nlp_ja_model(query.query_text) if
                                  any(token.tag_.startswith(tag) for tag in
                                      ['名詞-普通名詞', '名詞-固有名詞', '動詞-一般'])]))
     english_words = [text for text in ja_split_queries if re.match(r'^[a-zA-Z]', text)]
