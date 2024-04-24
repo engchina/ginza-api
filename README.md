@@ -1,0 +1,2 @@
+# ginza-api
+GiNZA API
