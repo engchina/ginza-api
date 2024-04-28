@@ -16,5 +16,17 @@ pip install -r requirements.txt
 
 ```
 uvicorn main:app --reload --host 0.0.0.0 --port 7932
+or on windows
+./main.bat
+or on linux
+./main.sh
+```
+## Test
+
+```
+python client.py
 ```
 
+## Reference
+
+- [https://spacy.io/models](https://spacy.io/models)
