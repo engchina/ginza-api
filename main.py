@@ -1,5 +1,6 @@
 import re
 
+import jieba
 import spacy
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -38,27 +39,35 @@ def split_query(query: QueryText):
         # 日文分词处理
         ja_split_queries = [token.text for token in nlp_ja_ginza(query.query_text) if
                             any(token.tag_.startswith(tag) for tag in
-                                ['名詞-普通名詞', '名詞-固有名詞', '動詞-一般'])]
-        # 筛选英文单词
-        english_words = [text for text in ja_split_queries if re.match(r'^[a-zA-Z]', text)]
+                                ['名詞-数詞', '名詞-普通名詞', '名詞-固有名詞', '動詞-一般'])
+                            and not re.fullmatch(r'[0-9a-zA-Z]+', token.text)]
         # 英文分词处理
-        en_split_queries = [token.text for token in nlp_en_core(' '.join(english_words)) if
-                            token.pos_ in ['PROPN', 'NOUN', 'VERB']]
-        final_split_queries = ja_split_queries + en_split_queries
-
-    elif query.language == 'zh':
-        # 中文分词处理
-        zh_split_queries = [token.text for token in nlp_zh_core(query.query_text) if
-                            token.pos_ in ['NOUN', 'PROPN', 'VERB']]
+        en_split_queries = [token.text for token in nlp_en_core(query.query_text) if
+                            token.pos_ in ['PROPN', 'NOUN', 'VERB', 'NUM'] and re.match(r'^[0-9a-zA-Z]', token.text)]
+        final_split_queries = list(set(ja_split_queries + en_split_queries))
+    elif query.language == 'zh':  # 使用jieba进行中文分词
+        jieba_split_queries = list(jieba.cut(query.query_text))
+        # # 中文分词处理
+        # zh_split_queries = [token.text for token in nlp_zh_core(query.query_text) if
+        #                     token.pos_ in ['NOUN', 'PROPN', 'VERB'] and 1 < len(token.text) < 5
+        #                     and not re.fullmatch(r'[a-zA-Z]+', token.text)]
+        # # 使用spaCy的中文模型处理jieba的分词结果
+        docs = nlp_zh_core.pipe(jieba_split_queries)
+        zh_split_queries = [token.text for doc in docs for token in doc if
+                            token.pos_ in ['NOUN', 'PROPN', 'VERB', 'NUM']
+                            and 1 < len(token.text) < 5 and not re.fullmatch(r'[0-9a-zA-Z]+', token.text)]
+        # 筛选英文单词
+        # english_words = [text for text in zh_split_queries if re.match(r'^[a-zA-Z]', text)]
+        # print(f"{english_words=}")
         # 英文分词处理（中文文本中可能包含英文）
         en_split_queries = [token.text for token in nlp_en_core(query.query_text) if
-                            token.pos_ in ['PROPN', 'NOUN', 'VERB']]
-        final_split_queries = zh_split_queries + en_split_queries
+                            token.pos_ in ['PROPN', 'NOUN', 'VERB', 'NUM'] and re.match(r'^[0-9a-zA-Z]', token.text)]
+        final_split_queries = list(set(zh_split_queries + en_split_queries))
 
     elif query.language == 'en':
         # 只做英文分词处理
         final_split_queries = [token.text for token in nlp_en_core(query.query_text) if
-                               token.pos_ in ['PROPN', 'NOUN', 'VERB']]
+                               token.pos_ in ['PROPN', 'NOUN', 'VERB'] and re.match(r'^[a-zA-Z]', token.text)]
 
     # 定义英文停用词列表
     custom_stopwords = {
@@ -79,5 +88,5 @@ def split_query(query: QueryText):
     final_split_queries = [word for word in set(final_split_queries)
                            if
                            word.lower() not in custom_stopwords and word.lower() not in nlp_en_core.Defaults.stop_words]
-
+    print(f"{final_split_queries=}")
     return final_split_queries

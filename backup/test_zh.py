@@ -24,7 +24,7 @@ def process_text(text):
 
 
 # 示例文本
-text = "spaCy语言模型包含了一些强大的文本分析功能，如词性标注和命名实体识别功能。This is a sentence."
+text = "spaCy语言模型包含了一些强大的文本分析功能，如词性标注和命名实体识别功能。This is a sentence.江苏爱康太阳能科技股份有限公司报告期内第一大客户是谁？"
 
 # 处理文本
 results = process_text(text)
