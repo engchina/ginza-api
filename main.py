@@ -19,7 +19,7 @@ class QueryText(BaseModel):
     language: str  # 添加一个语言字段
 
 
-@app.post("/split-query/")
+@app.post("/v1/tokenize")
 def split_query(query: QueryText):
     """
     Extracts relevant search texts from the input query text based on the specified language and token tags.

@@ -30,7 +30,8 @@ def process_text(text):
 
 
 # 示例文本
-text = "日本の東京タワーと富士山は有名な観光地です。"
+# text = "日本の東京タワーと富士山は有名な観光地です。"
+text = "オラクルデータベースとは？"
 
 # 处理文本
 results = process_text(text)

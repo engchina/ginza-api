@@ -21,6 +21,13 @@ or on windows
 or on linux
 ./main.sh
 ```
+
+## Use
+
+```
+http://localhost:7932/v1/tokenize
+```
+
 ## Test
 
 ```
