@@ -43,7 +43,7 @@ def split_query(query: QueryText):
                             and not re.fullmatch(r'[0-9a-zA-Z]+', token.text)]
         # 英文分词处理
         en_split_queries = [token.text for token in nlp_en_core(query.query_text) if
-                            token.pos_ in ['PROPN', 'NOUN', 'VERB', 'NUM'] and re.match(r'^[0-9a-zA-Z]', token.text)]
+                            token.pos_ in ['PROPN', 'NOUN', 'VERB', 'NUM'] and re.match(r'^[a-zA-Z]', token.text)]
         final_split_queries = list(set(ja_split_queries + en_split_queries))
     elif query.language == 'zh':  # 使用jieba进行中文分词
         jieba_split_queries = list(jieba.cut(query.query_text))
@@ -61,7 +61,7 @@ def split_query(query: QueryText):
         # print(f"{english_words=}")
         # 英文分词处理（中文文本中可能包含英文）
         en_split_queries = [token.text for token in nlp_en_core(query.query_text) if
-                            token.pos_ in ['PROPN', 'NOUN', 'VERB', 'NUM'] and re.match(r'^[0-9a-zA-Z]', token.text)]
+                            token.pos_ in ['PROPN', 'NOUN', 'VERB', 'NUM'] and re.match(r'^[a-zA-Z]', token.text)]
         final_split_queries = list(set(zh_split_queries + en_split_queries))
 
     elif query.language == 'en':
