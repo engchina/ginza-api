@@ -40,7 +40,7 @@ def split_query(query: QueryText):
         ja_split_queries = [token.text for token in nlp_ja_ginza(query.query_text) if
                             any(token.tag_.startswith(tag) for tag in
                                 ['名詞-数詞', '名詞-普通名詞', '名詞-固有名詞', '動詞-一般'])
-                            and not re.fullmatch(r'[0-9a-zA-Z]+', token.text)]
+                            and not re.fullmatch(r'[0-9]+', token.text)]
         # 英文分词处理
         en_split_queries = [token.text for token in nlp_en_core(query.query_text) if
                             token.pos_ in ['PROPN', 'NOUN', 'VERB', 'NUM'] and re.match(r'^[a-zA-Z]', token.text)]
@@ -55,7 +55,7 @@ def split_query(query: QueryText):
         docs = nlp_zh_core.pipe(jieba_split_queries)
         zh_split_queries = [token.text for doc in docs for token in doc if
                             token.pos_ in ['NOUN', 'PROPN', 'VERB', 'NUM']
-                            and 1 < len(token.text) < 5 and not re.fullmatch(r'[0-9a-zA-Z]+', token.text)]
+                            and 1 < len(token.text) < 5 and not re.fullmatch(r'[0-9]+', token.text)]
         # 筛选英文单词
         # english_words = [text for text in zh_split_queries if re.match(r'^[a-zA-Z]', text)]
         # print(f"{english_words=}")
